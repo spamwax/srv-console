@@ -19,7 +19,7 @@
 
 #define IP_ADDRESS	"192.168.0.100"
 #define MTU		2048
-#define TIMEOUT	1000			// if larger pictures than 320x240 is required you should increase this
+#define TIMEOUT	500			// if larger pictures than 320x240 is required you should increase this
 #define FONT	"/usr/share/fonts/truetype/freefont/FreeSans.ttf"
 #define FONT_SIZE	14
 #define CONSOLE		1
@@ -193,8 +193,8 @@ int main(int argc, char* argv[])
 void sendCmd(TCPsocket tcpsock, SDLNet_SocketSet socSet, SDL_Surface *screen)
 {
 	int i, result;
-	unsigned char cmd[20];			// Buffer to hold the input string
-	unsigned char temp[21];			// temporary buffer used for printing (one extra char for the '_' -char)
+	unsigned char cmd[30];			// Buffer to hold the input string
+	unsigned char temp[31];			// temporary buffer used for printing (one extra char for the '_' -char)
 	unsigned char buffer[MTU];
 	SDL_Surface *text = NULL;
 	SDL_Color textColor = {0,255,0,0};
@@ -208,11 +208,11 @@ void sendCmd(TCPsocket tcpsock, SDLNet_SocketSet socSet, SDL_Surface *screen)
 	signed int nrSocketsReady;
 	
 	// prepare command buffers
-	for (i=0;i<20;i++) {
+	for (i=0;i<30;i++) {
 		cmd[i] = '\0';
 		temp[i] = '\0';
 	}
-	temp[20] = '\0';
+	temp[30] = '\0';
 	
 	// console chars
 	temp[0] = '#';
@@ -249,7 +249,7 @@ void sendCmd(TCPsocket tcpsock, SDLNet_SocketSet socSet, SDL_Surface *screen)
 						len++;
 					else
 						break;
-				} while(len < 19);	// save the last '\0' char
+				} while(len < 29);	// save the last '\0' char
 				
 				if (event.key.keysym.sym == SDLK_RETURN) {
 					done = 1;					// flag the command as complete, exit loop
@@ -261,17 +261,17 @@ void sendCmd(TCPsocket tcpsock, SDLNet_SocketSet socSet, SDL_Surface *screen)
 				else if (event.key.keysym.sym == SDLK_ESCAPE) {
 					exit = 1;					// exits loop
 				}
-				else if ((len < 19) && (event.key.keysym.unicode >= (unsigned short)' ') && (event.key.keysym.unicode <= (unsigned short)'}')) {
+				else if ((len < 29) && (event.key.keysym.unicode >= (unsigned short)' ') && (event.key.keysym.unicode <= (unsigned short)'}')) {
 					cmd[len] = (char)event.key.keysym.unicode;		//Append the character to the command string
 				}
-				else if (len >= 19) {
+				else if (len >= 29) {
 					printf("command too long!\n\r");
 				}
 				
 				if (strcmp(cmd,temp) != 0) {
 					clrCmd(screen, CMD);
 					
-					memset(temp,'\0',20);
+					memset(temp,'\0',30);
 					strcpy(temp,cmd);
 					len = 0;
 					do {
@@ -279,7 +279,7 @@ void sendCmd(TCPsocket tcpsock, SDLNet_SocketSet socSet, SDL_Surface *screen)
 							len++;
 						else
 							break;
-					} while(len < 19);			// save place for the '_' and '\0' char
+					} while(len < 29);			// save place for the '_' and '\0' char
 					
 					temp[len] = '_';			// add an underscore (just because it looks good)
 					text = TTF_RenderText_Shaded(font, temp, textColor, bgColor);	// Render a new text surface
@@ -300,7 +300,7 @@ void sendCmd(TCPsocket tcpsock, SDLNet_SocketSet socSet, SDL_Surface *screen)
 				len++;
 			else
 				break;
-		} while(len < 20);
+		} while(len < 30);
 		
 		if (len > 0) {
 			// Send command to SRV-1
